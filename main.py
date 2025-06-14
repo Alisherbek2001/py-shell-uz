@@ -17,10 +17,18 @@ def about(request, response):
 def greeting(request, response, name):
     response.text = f"Hello, {name}!"
 
+
 @app.route("/books")
 class Books:
     def get(self, request, response):
         response.text = "List of books"
-        
+
     def post(self, request, response):
         response.text = "Book created"
+
+
+def new_handler(req, res):
+    res.text = "This is a new handler response!"
+
+
+app.add_route("/new_handler", new_handler)

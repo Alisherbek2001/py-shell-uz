@@ -43,11 +43,14 @@ class PyShellApp:
         response.status = 404
         response.text = "Not Found"
 
-    def route(self, path):
+    def add_route(self, path, handler):
         assert path not in self.routes, f"Route '{path}' already exists."
+        self.routes[path] = handler
+
+    def route(self, path):
 
         def wrapper(handler):
-            self.routes[path] = handler
+            self.add_route(path, handler)
             return handler
 
         return wrapper

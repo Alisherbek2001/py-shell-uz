@@ -57,6 +57,7 @@ def test_class_based_get(app, test_client):
 
     assert test_client.get("http://testserver/books").text == "Books page"
 
+
 def test_class_based_post(app, test_client):
     @app.route("/books")
     class Books:
@@ -64,7 +65,8 @@ def test_class_based_post(app, test_client):
             res.text = "Book created"
 
     assert test_client.post("http://testserver/books").text == "Book created"
-    
+
+
 def test_class_based_method_not_allowed(app, test_client):
     @app.route("/books")
     class Books:
@@ -72,6 +74,18 @@ def test_class_based_method_not_allowed(app, test_client):
             res.text = "Books page"
 
     response = test_client.post("http://testserver/books")
-    
+
     assert response.status_code == 405
     assert response.text == "Method Not Allowed"
+
+
+def test_alternative_route_adding(app, test_client):
+    def new_handler(req, res):
+        res.text = "This is a new handler response!"
+
+    app.add_route("/new_handler", new_handler)
+
+    assert (
+        test_client.get("http://testserver/new_handler").text
+        == "This is a new handler response!"
+    )
