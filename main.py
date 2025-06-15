@@ -32,3 +32,10 @@ def new_handler(req, res):
 
 
 app.add_route("/new_handler", new_handler)
+
+
+@app.route("/template")
+def template_handler(req, res):
+    res.body = app.template(
+        "home.html", context={"new_title": "New title", "new_body": "Best body 123"}
+    )
