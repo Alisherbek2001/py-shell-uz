@@ -39,3 +39,14 @@ def template_handler(req, res):
     res.body = app.template(
         "home.html", context={"new_title": "New title", "new_body": "Best body 123"}
     )
+
+
+def on_exception(req, res, exc):
+    res.status = 500
+    res.text = f"An error occurred: {exc}"
+
+app.add_exception_handler(on_exception)
+
+@app.route("/exception")
+def exception_throwing_handler(req, res):
+    raise AttributeError("some exception")

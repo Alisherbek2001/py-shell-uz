@@ -103,3 +103,20 @@ def test_template_handler(app, test_client):
     assert "Best title" in response.text    
     assert "Best body" in response.text
     assert "text/html" in response.headers["Content-Type"]
+    
+    
+
+def test_custom_exception_handler(app, test_client):
+    def on_exception(req, res, exc):
+        res.status = 500
+        res.text = "Something went wrong: "
+
+    app.add_exception_handler(on_exception)
+
+    @app.route("/exception")
+    def exception_throwing_handler(req, res):
+        raise AttributeError("some exception")
+    
+    response = test_client.get("http://testserver/exception")
+    assert response.text == "Something went wrong: "
+    assert response.status_code == 500

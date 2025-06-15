@@ -14,6 +14,7 @@ class PyShellApp:
         self.template_env = Environment(
             loader=FileSystemLoader(os.path.abspath(templates_dir)),
         )
+        self.exception_handlers = None
 
     def __call__(self, environ, start_response):
         request = Request(environ)
@@ -32,7 +33,13 @@ class PyShellApp:
                     response.status = 405
                     response.text = "Method Not Allowed"
                     return response
-            handler(request, response, **kwargs)
+            try:
+                handler(request, response, **kwargs)
+            except Exception as e:
+                if self.exception_handlers is not None:
+                    self.exception_handlers(request, response, e)
+                else:
+                    raise e
         else:
             self.default_response(response)
 
@@ -70,3 +77,6 @@ class PyShellApp:
         if context is None:
             context = {}
         return self.template_env.get_template(template_name).render(**context).encode()
+
+    def add_exception_handler(self, handler):
+        self.exception_handlers = handler
