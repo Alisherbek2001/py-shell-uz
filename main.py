@@ -1,4 +1,5 @@
 from app import PyShellApp
+from middleware import Middleware
 
 app = PyShellApp()
 
@@ -45,8 +46,25 @@ def on_exception(req, res, exc):
     res.status = 500
     res.text = f"An error occurred: {exc}"
 
+
 app.add_exception_handler(on_exception)
+
 
 @app.route("/exception")
 def exception_throwing_handler(req, res):
     raise AttributeError("some exception")
+
+
+class LoggingMiddleware(Middleware):
+
+    def __init__(self, app):
+        super().__init__(app)
+
+    def process_request(self, request):
+        print("request is being called", request.url)
+
+    def process_response(self, request, response):
+        print("response has been  called", request.url)
+
+
+app.add_middleware(LoggingMiddleware)
