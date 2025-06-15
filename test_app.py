@@ -95,16 +95,16 @@ def test_template_handler(app, test_client):
     @app.route("/test-template")
     def template(req, res):
         res.body = app.template(
-        "home.html", context={"new_title": "Best title", "new_body": "Best body"}
-    )
+            "home.html", context={"new_title": "Best title", "new_body": "Best body"}
+        )
+
     response = test_client.get("http://testserver/test-template")
-    
+
     assert response.status_code == 200
-    assert "Best title" in response.text    
+    assert "Best title" in response.text
     assert "Best body" in response.text
     assert "text/html" in response.headers["Content-Type"]
-    
-    
+
 
 def test_custom_exception_handler(app, test_client):
     def on_exception(req, res, exc):
@@ -116,7 +116,19 @@ def test_custom_exception_handler(app, test_client):
     @app.route("/exception")
     def exception_throwing_handler(req, res):
         raise AttributeError("some exception")
-    
+
     response = test_client.get("http://testserver/exception")
     assert response.text == "Something went wrong: "
     assert response.status_code == 500
+
+
+def test_non_existent_static_file(test_client):
+    assert (
+        test_client.get("http://testserver/static/non_existent_file.txt").status_code
+        == 404
+    )
+
+
+def test_serving_static_file(test_client):
+    response = test_client.get("http://testserver/test.css")
+    assert response.text == "body {background-color: chocolate;}"
