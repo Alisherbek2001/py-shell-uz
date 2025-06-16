@@ -1,5 +1,6 @@
 from app import PyShellApp
 from middleware import Middleware
+import json
 
 app = PyShellApp()
 
@@ -37,9 +38,17 @@ app.add_route("/new_handler", new_handler)
 
 @app.route("/template")
 def template_handler(req, res):
-    res.body = app.template(
+    res.html = app.template(
         "home.html", context={"new_title": "New title", "new_body": "Best body 123"}
     )
+    res.status = 200
+
+
+@app.route("/json")
+def json_handler(req, res):
+    response_data = {"name": "some name", "type": "json"}
+
+    res.json = response_data
 
 
 def on_exception(req, res, exc):

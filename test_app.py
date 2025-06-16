@@ -97,6 +97,7 @@ def test_template_handler(app, test_client):
         res.body = app.template(
             "home.html", context={"new_title": "Best title", "new_body": "Best body"}
         )
+        res.status = 200
 
     response = test_client.get("http://testserver/test-template")
 
@@ -162,7 +163,6 @@ def test_middleware_methods_are_called(app, test_client):
     assert process_response_called is True
 
 
-
 def test_allowed_methods_for_fucntion_based_handler(app, test_client):
     @app.route("/home", allowed_methods=["post"])
     def home(req, res):
@@ -171,3 +171,37 @@ def test_allowed_methods_for_fucntion_based_handler(app, test_client):
     res = test_client.get("http://testserver/home")
     assert res.status_code == 405
     assert res.text == "Method Not Allowed"
+
+
+def test_json_response_helper(app, test_client):
+    @app.route("/json")
+    def json_handler(req, res):
+        res.json = {"name": "pyshelleuz"}
+
+    res = test_client.get("http://testserver/json")
+    res_data = res.json()
+    assert res.headers["Content-Type"] == "application/json"
+    assert res_data["name"] == "pyshelleuz"
+
+
+def test_text_response_helper(app, test_client):
+    @app.route("/text")
+    def text_handler(req, res):
+        res.text = "This is a text response"
+
+    res = test_client.get("http://testserver/text")
+    assert "text/plain" in res.headers["Content-Type"]
+    assert res.text == "This is a text response"
+
+
+def test_html_response_helper(app, test_client):
+    @app.route("/html")
+    def html_handler(req, res):
+        res.html = app.template(
+            "home.html", context={"new_title": "Best title", "new_body": "Best body"}
+        )
+
+    res = test_client.get("http://testserver/html")
+    assert "text/html" in res.headers["Content-Type"]
+    assert "Best title" in res.text
+    assert "Best body" in res.text

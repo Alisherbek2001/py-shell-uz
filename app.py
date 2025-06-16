@@ -1,4 +1,4 @@
-from webob import Request, Response
+from webob import Request
 from parse import parse
 import inspect
 import requests
@@ -7,6 +7,7 @@ from jinja2 import Environment, FileSystemLoader
 import os
 from whitenoise import WhiteNoise
 from middleware import Middleware
+from response import Response
 
 
 class PyShellApp:
@@ -45,6 +46,11 @@ class PyShellApp:
                     return self.method_not_allowed(response)
             else:
                 if request.method.lower() not in allowed_methods:
+                    print(
+                        request.method.lower(),
+                        "method------------------------",
+                        allowed_methods,
+                    )
                     return self.method_not_allowed(response)
             try:
                 handler(request, response, **kwargs)
@@ -59,7 +65,7 @@ class PyShellApp:
         return response
 
     def method_not_allowed(self, response):
-        response.status_code = 405
+        response.status = 405
         response.text = "Method Not Allowed"
         return response
 
@@ -107,7 +113,7 @@ class PyShellApp:
     def template(self, template_name, context=None):
         if context is None:
             context = {}
-        return self.template_env.get_template(template_name).render(**context).encode()
+        return self.template_env.get_template(template_name).render(**context)
 
     def add_exception_handler(self, handler):
         self.exception_handlers = handler
